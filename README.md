@@ -1,1 +1,1 @@
-# DeepSight---Modern-System-Monitor
+# DeepSight - Modern System Monitor
