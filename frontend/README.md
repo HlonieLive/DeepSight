@@ -1,37 +1,62 @@
 
-# DeepSight Dashboard
+# Deep Sight 👁️
 
-A modern, colourful, and responsive frontend dashboard for system monitoring.
+A modern, real-time system monitoring dashboard that gives you deep insights into your computer's health and performance. Built with **React**, **Node.js**, and a touch of glassmorphism.
 
-## Features
+![Deep Sight Dashboard](https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2670&ixlib=rb-4.0.3) 
+*(Note: Screenshot placeholder. Run the app to see the magic!)*
 
-- **Real-time Monitoring**: Connects to the backend via Socket.io.
-- **Dynamic Charts**: Visualizes CPU, Memory, and Temperature history.
-- **Health Analysis**: Provides actionable suggestions based on system metrics.
-- **Premium Aesthetics**: Glassmorphism design with vibrant neon accents and smooth animations.
+## ✨ Features
 
-## Tech Stack
+*   **Real-Time Monitoring**: Watch your CPU, Memory, and Network usage update live via WebSocket.
+*   **Interactive Insights**: Click on any card (CPU, Storage, Network) to dive deeper.
+*   **Detailed Metrics**:
+    *   **CPU**: Visualizes load across *all* your CPU cores individually. plus temperature monitoring.
+    *   **Processes**: See the top 5 resource-hungry apps slowing you down.
+    *   **Storage**: Breakdown of all your disk partitions and space usage.
+    *   **Network**: Live upload/download speeds and interface status.
+    *   **System Info**: Displays your OS distro, Kernel version, and even GPU model.
+*   **Responsive Design**: Looks great on your ultra-wide monitor AND your phone.
+*   **Battery Status**: (Laptop users) Checks your battery health and charging status.
 
-- **React** (Vite)
-- **Vanilla CSS** (Modular, responsive, no frameworks)
-- **Recharts** (Data visualization)
-- **Framer Motion** (Animations)
-- **Lucide React** (Icons)
-- **Socket.io Client** (Real-time data)
+## 🚀 Tech Stack
 
-## Getting Started
+*   **Frontend**: React (Vite), Framer Motion (animations), Recharts (graphs), Lucide Icons.
+*   **Backend**: Node.js, Express, Socket.IO (real-time data), SystemInformation (the magic library).
+*   **Styling**: Pure CSS with CSS Variables (no heavy frameworks like Tailwind, keeping it lightweight).
 
-1. Ensure the backend is running:
-   ```bash
-   cd ../backend
-   npm run dev
-   ```
+## 🛠️ How to Run
 
-2. Start the frontend:
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
+### 1. Clone & Install
+```bash
+git clone https://github.com/yourusername/DeepSight.git
+cd DeepSight
+```
 
-3. Open your browser at `http://localhost:5173`.
+### 2. Start the Backend (The Brain)
+```bash
+cd backend
+npm install
+npm run dev
+# Server starts on http://localhost:3001
+```
+
+### 3. Start the Frontend (The Beauty)
+```bash
+# Open a new terminal
+cd frontend
+npm install
+npm run dev
+# Dashboard opens at http://localhost:5173
+```
+
+## 📸 Snapshots
+*   **Home Dashboard**: A clean overview of system health.
+*   **Process Manager**: Quickly identify what's eating your RAM.
+*   **Core Visualizer**: Satisfying bars showing each CPU core working hard.
+
+## 🤝 Contributing
+Feel free to fork this, add new widgets (maybe GPU temps or Docker stats?), and submit a PR!
+
+---
+*Built by Lehlohonolo.*
