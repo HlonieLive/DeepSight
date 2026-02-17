@@ -5,16 +5,18 @@ class Monitor {
         this.staticData = null;
     }
 
+
     async getStaticData() {
         if (this.staticData) return this.staticData;
 
         try {
-            const [cpu, osInfo, system, diskLayout, networkInterfaces] = await Promise.all([
+            const [cpu, osInfo, system, diskLayout, networkInterfaces, graphics] = await Promise.all([
                 si.cpu(),
                 si.osInfo(),
                 si.system(),
                 si.diskLayout(),
-                si.networkInterfaces()
+                si.networkInterfaces(),
+                si.graphics()
             ]);
 
             this.staticData = {
@@ -22,7 +24,8 @@ class Monitor {
                 osInfo,
                 system,
                 diskLayout,
-                networkInterfaces
+                networkInterfaces,
+                graphics
             };
             return this.staticData;
         } catch (error) {
@@ -33,21 +36,37 @@ class Monitor {
 
     async getFormattedData() {
         try {
-            const [currentLoad, mem, networkStats, fsSize, cpuTemperature, cpuSpeed] = await Promise.all([
+            const [currentLoad, mem, networkStats, fsSize, cpuTemperature, cpuSpeed, battery] = await Promise.all([
                 si.currentLoad(),
                 si.mem(),
                 si.networkStats(),
                 si.fsSize(),
                 si.cpuTemperature(),
-                si.cpuCurrentSpeed()
+                si.cpuCurrentSpeed(),
+                si.battery()
             ]);
+
+            // --- Processes ---
+            const processesData = await si.processes();
+            const topProcesses = processesData.list
+                .sort((a, b) => b.cpu - a.cpu)
+                .slice(0, 5)
+                .map(p => ({
+                    pid: p.pid,
+                    name: p.name,
+                    cpu: p.cpu.toFixed(1),
+                    mem: p.mem.toFixed(1),
+                    user: p.user
+                }));
 
             // --- Performance ---
             const performance = {
                 cpuUsage: currentLoad.currentLoad.toFixed(2),
+                cpuCores: currentLoad.cpus.map(c => c.load.toFixed(1)), // Per-core load
                 memoryUsage: ((mem.active / mem.total) * 100).toFixed(2),
                 memoryTotal: (mem.total / 1024 / 1024 / 1024).toFixed(2) + " GB",
-                memoryAvailable: (mem.available / 1024 / 1024 / 1024).toFixed(2) + " GB"
+                memoryAvailable: (mem.available / 1024 / 1024 / 1024).toFixed(2) + " GB",
+                uptime: si.time().uptime
             };
 
             // --- Size (Storage) ---
@@ -60,7 +79,15 @@ class Monitor {
                 total: (totalStorage / 1024 / 1024 / 1024).toFixed(2) + " GB",
                 used: (usedStorage / 1024 / 1024 / 1024).toFixed(2) + " GB",
                 free: ((totalStorage - usedStorage) / 1024 / 1024 / 1024).toFixed(2) + " GB",
-                percentUsed: ((usedStorage / totalStorage) * 100).toFixed(2)
+                percentUsed: ((usedStorage / totalStorage) * 100).toFixed(2),
+                details: relevantDrives.map(d => ({
+                    fs: d.fs,
+                    type: d.type,
+                    mount: d.mount,
+                    size: (d.size / 1024 / 1024 / 1024).toFixed(1) + " GB",
+                    used: (d.used / 1024 / 1024 / 1024).toFixed(1) + " GB",
+                    use: d.use.toFixed(1)
+                }))
             };
 
             // --- Speed ---
@@ -71,7 +98,21 @@ class Monitor {
             const speed = {
                 cpuCurrentSpeed: cpuSpeed.avg + " GHz",
                 networkDownload: (rxSec / 1024 / 1024).toFixed(2) + " MB/s",
-                networkUpload: (txSec / 1024 / 1024).toFixed(2) + " MB/s"
+                networkUpload: (txSec / 1024 / 1024).toFixed(2) + " MB/s",
+                interfaces: networkStats.map(iface => ({
+                    iface: iface.iface,
+                    rx: (iface.rx_sec / 1024).toFixed(1) + " KB/s",
+                    tx: (iface.tx_sec / 1024).toFixed(1) + " KB/s",
+                    operstate: iface.operstate
+                }))
+            };
+
+            // --- Power (Battery) ---
+            const power = {
+                hasBattery: battery.hasBattery,
+                percent: battery.percent,
+                isCharging: battery.isCharging,
+                timeRemaining: battery.timeRemaining
             };
 
             // --- Suggestions & Health ---
@@ -94,6 +135,10 @@ class Monitor {
                 suggestions.push("CPU is running hot. Check cooling system.");
                 healthScore -= 30;
             }
+            if (power.hasBattery && !power.isCharging && power.percent < 20) {
+                suggestions.push("Battery is low. Connect charger.");
+                healthScore -= 5;
+            }
 
             if (suggestions.length === 0) {
                 suggestions.push("System is running smoothly.");
@@ -102,7 +147,9 @@ class Monitor {
             const health = {
                 status: healthScore > 80 ? "Good" : (healthScore > 50 ? "Fair" : "Critical"),
                 score: healthScore,
-                temperature: cpuTemperature.main || "N/A"
+                temperature: cpuTemperature.main || "N/A",
+                cores: cpuTemperature.cores,
+                max: cpuTemperature.max
             };
 
             return {
@@ -110,7 +157,9 @@ class Monitor {
                 performance,
                 size,
                 speed,
-                suggestions
+                power,
+                suggestions,
+                processes: topProcesses
             };
 
         } catch (error) {
