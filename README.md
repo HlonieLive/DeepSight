@@ -1,7 +1,7 @@
 
-# Deep Sight 👁️
+# DeepSight - Modern System Monitor
 
-**Deep Sight** is a modern, real-time system monitoring dashboard that provides detailed insights into your computer's health and performance. It combines a sleek, responsive frontend with a powerful backend to visualize critical metrics like CPU load per core, memory usage, network traffic, and storage health.
+**DeepSight** is a modern, real-time system monitoring dashboard that provides detailed insights into your computer's health and performance. It combines a sleek, responsive frontend with a powerful backend to visualize critical metrics like CPU load per core, memory usage, network traffic, and storage health.
 
 Running on **Node.js** and **React**, it uses **Socket.IO** for live updates and features a beautiful glassmorphism UI designed to be both informative and visually stunning.
 
